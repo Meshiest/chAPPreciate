@@ -17,8 +17,11 @@ import com.maxkrass.appreciate.Team;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class SearchActivity extends ActionBarActivity {
+
+	// wow this code is bad...
 	TextView autoZoneTeam1;
 	TextView stackedTotesTeam1;
 	TextView workedTeam1;
@@ -184,8 +187,8 @@ public class SearchActivity extends ActionBarActivity {
 			if (allMatches != null && allMatches.length > 0) {
 				ArrayList<ArrayList<String>> dataMatrix = new ArrayList<>();
 				for (File match : allMatches) {                                                     //Put all matches for this team
-					ArrayList<String> dataList = Team.getTextFromFile(match);
-					dataMatrix.add(dataList);
+					HashMap<String, String> dataMap = Team.getTextFromFile(match);
+					dataMatrix.add(new ArrayList<String>(dataMap.keySet()));
 				}
 				ArrayList<ArrayList<Integer>> stacks = new ArrayList<>();
 				for (int r = 0; r < dataMatrix.size(); r++) {                                           //pull out the stacks
@@ -328,8 +331,8 @@ public class SearchActivity extends ActionBarActivity {
 			if (allMatches != null && allMatches.length > 0) {
 				ArrayList<ArrayList<String>> dataMatrix = new ArrayList<>();
 				for (File match : allMatches) {                                                         //Put all matches for this team
-					ArrayList<String> dataList = Team.getTextFromFile(match);
-					dataMatrix.add(dataList);
+					HashMap<String, String> dataMap = Team.getTextFromFile(match);
+					dataMatrix.add(new ArrayList<String>(dataMap.keySet()));
 				}
 				ArrayList<ArrayList<Integer>> stacks = new ArrayList<>();
 				for (int r = 0; r < dataMatrix.size(); r++) {                                           //pull out the stacks
@@ -472,8 +475,11 @@ public class SearchActivity extends ActionBarActivity {
 			if (allMatches != null && allMatches.length > 0) {
 				ArrayList<ArrayList<String>> dataMatrix = new ArrayList<>();
 				for (File allMatche : allMatches) {                                                     //Put all matches for this team
-					ArrayList<String> dataList = Team.getTextFromFile(allMatche);
-					dataMatrix.add(dataList);
+					// TODO: please use the dataMap as it should be used :)
+					// use: dataMap.get("teamName") (returns the text inside the <teamName> tag
+					// it's literally how xml should be...
+					HashMap<String, String> dataMap = Team.getTextFromFile(allMatche);
+					dataMatrix.add(new ArrayList<String>(dataMap.keySet()));
 				}
 				ArrayList<ArrayList<Integer>> stacks = new ArrayList<>();
 				for (int r = 0; r < dataMatrix.size(); r++) {                                           //pull out the stacks

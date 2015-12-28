@@ -30,24 +30,31 @@ public class PitScoutFragment extends Fragment {
 	File localScoutFolder;
 	SharedPreferences settings;
 
-	public List<Team> getTeams() {
-		List<Team> teams = new ArrayList<>();
-		localScoutFolder = new File(String.valueOf(Environment.getExternalStorageDirectory()) + "/" + settings.getString("folder_name", "FRCScouting") + "/data");
+	// get all of the teams from the storage directory
+	public ArrayList<Team> getTeams() {
+        ArrayList<Team> teams = new ArrayList<>();
+
+        // path to the storage directory
+        String path = String.valueOf(Environment.getExternalStorageDirectory()) + "/" + settings.getString("folder_name", "FRCScouting") + "/data";
+		localScoutFolder = new File(path);
 		if (!localScoutFolder.exists() && !localScoutFolder.mkdir()) {
 			//TODO make no files yet screen
 			teams.add(new Team("0"));
 		}
-		teamFiles = localScoutFolder.listFiles();
-		if (teamFiles == null || teamFiles.length == 0) {
-			teams.add(new Team("0"));
-		} else {
-			for (File teamFile : teamFiles) {
-				teamFile = new File(teamFile, teamFile.getName() + ".pit");
-				if (teamFile.exists())
-					teams.add(Team.getTeamFromFile(teamFile));
-			}
-		}
-		Collections.sort(teams, new AlphanumComparator());
+        else {
+
+            teamFiles = localScoutFolder.listFiles();
+            if (teamFiles == null || teamFiles.length == 0) {
+                teams.add(new Team("0"));
+            } else {
+                for (File teamFile : teamFiles) {
+                    teamFile = new File(teamFile, teamFile.getName() + ".pit");
+                    if (teamFile.exists())
+                        teams.add(Team.getTeamFromFile(teamFile));
+                }
+            }
+            Collections.sort(teams);
+        }
 		return teams;
 	}
 

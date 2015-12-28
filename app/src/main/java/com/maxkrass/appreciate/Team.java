@@ -1,99 +1,109 @@
 package com.maxkrass.appreciate;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.StringReader;
+import org.xmlpull.v1.*;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Team implements Comparable<Team> {
 
-	public String teamNumber;
-	static FileInputStream fis;
-	static InputStreamReader isr;
-	static char[] inputBuffer;
-	static String data;
+	public String teamNumber, teamName;
 
-	public static ArrayList<String> getTextFromFile(File teamFile) {
+	public static HashMap<String, String> getTextFromFile(File teamFile) {
 		try {
-			fis = new FileInputStream(teamFile);
-			isr = new InputStreamReader(fis);
-			inputBuffer = new char[fis.available()];
+
+			// reading the team data from a file
+			FileInputStream fis = new FileInputStream(teamFile);
+			InputStreamReader isr = new InputStreamReader(fis);
+			char[] inputBuffer = new char[fis.available()];
 			isr.read(inputBuffer);
-			data = new String(inputBuffer);
+			String data = new String(inputBuffer);
 			isr.close();
 			fis.close();
-		} catch (IOException e) {
+
+			// replacing new lines and tabs with nothing
+			data = data.replaceAll("\\n|\\t", "");
+
+			// objects to store the data retrieved from xml
+			HashMap<String, String> teamData = new HashMap<>();
+
+			// making an 'XmlPullParserFactory' to parse the xml
+			XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+			factory.setNamespaceAware(true);
+			XmlPullParser xpp = factory.newPullParser();
+			xpp.setInput(new StringReader(data));
+
+			// type of xml element
+			int eventType =  xpp.getEventType();
+
+            // name of the tag
+            String tagname = "";
+
+			// loop through the xml until it's the end
+			while (eventType != XmlPullParser.END_DOCUMENT) {
+
+				switch(eventType) {
+
+					// we don't really care about these, but I'm leaving
+					//   them in for future implementations
+					case XmlPullParser.START_DOCUMENT:
+					case XmlPullParser.END_TAG:
+                        break;
+
+                    // store the name of the tag
+                    case XmlPullParser.START_TAG:
+                        tagname = xpp.getName();
+                        break;
+
+					// every tag with text in it
+					case XmlPullParser.TEXT:
+                        Log.d("Max", "Tag: <" + tagname + "> = \"" + xpp.getText()+"\"");
+						teamData.put(tagname, xpp.getText());
+						break;
+				}
+
+				// go to the next element, ignoring whitespace
+				eventType = xpp.nextToken();
+			}
+			return teamData;
+
+		} catch (XmlPullParserException | IOException e) {
 			e.printStackTrace();
 		}
-		data = data.replaceAll("\\n|\\t", "");
-		XmlPullParserFactory factory = null;
-		try {
-			factory = XmlPullParserFactory.newInstance();
-		} catch (XmlPullParserException e2) {
-			e2.printStackTrace();
-		}
-		factory.setNamespaceAware(true);
-		XmlPullParser xpp = null;
-		try {
-			xpp = factory.newPullParser();
-		} catch (XmlPullParserException e2) {
-			e2.printStackTrace();
-		}
-		try {
-			xpp.setInput(new StringReader(data));
-		} catch (XmlPullParserException e1) {
-			e1.printStackTrace();
-		}
-		int eventType = 0;
-		try {
-			eventType = xpp.getEventType();
-		} catch (XmlPullParserException e1) {
-			e1.printStackTrace();
-		}
-		ArrayList<String> userData = new ArrayList<>();
-		while (eventType != XmlPullParser.END_DOCUMENT) {
-			if (eventType == XmlPullParser.START_DOCUMENT) {
-				System.out.println("Start document");
-			} else if (eventType == XmlPullParser.START_TAG) {
-				System.out.println("Start tag " + xpp.getName());
-			} else if (eventType == XmlPullParser.END_TAG) {
-				System.out.println("End tag " + xpp.getName());
-			} else if (eventType == XmlPullParser.TEXT) {
-				userData.add(xpp.getText());
-			}
-			try {
-				eventType = xpp.next();
-			} catch (XmlPullParserException | IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return userData;
+
+		return null;
 	}
 
 	public static Team getTeamFromFile(File teamFile) {
-		ArrayList<String> userData = getTextFromFile(teamFile);
-		return new Team(userData.get(0) + (userData.get(1).equals(" ") ? "" : (": " + userData.get(1))));
+		HashMap<String, String> teamData = getTextFromFile(teamFile);
+		if(teamData != null)
+			return new Team(teamData.get("teamNumber"), teamData.get("teamName"));
+		return null;
+	}
+
+	public Team(String teamNumber, String teamName) {
+		this.teamNumber = teamNumber;
+		this.teamName = teamName;
 	}
 
 	public Team(String teamNumber) {
-		this.teamNumber = teamNumber;
+		this(teamNumber, "");
 	}
 
 	@Override
-	public int compareTo(@NonNull Team another) {
-		return this.teamNumber.compareTo(another.teamNumber);
+	public int compareTo(@NonNull Team other) {
+		return this.getTeamNumber() - other.getTeamNumber();
 	}
 
 	@Override
 	public String toString() {
-		return teamNumber;
+		return "Team " + teamNumber + ": " + teamName;
+	}
+
+	public int getTeamNumber() {
+		return Integer.parseInt(this.teamNumber);
 	}
 }

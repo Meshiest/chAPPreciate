@@ -17,54 +17,60 @@ import java.util.Arrays;
 
 public class TeamFragment extends Fragment implements android.view.View.OnClickListener {
 
-	LinearLayout autoList;
-	LinearLayout teleList;
+	// layouts for teleop and autonomous
+	private LinearLayout autoList;
+	private LinearLayout teleList;
+
+	// list of matches
 	public LinearLayout teleMatchList;
 
-	public EditText teamName;
-	public EditText autoPoints;
-	public EditText totalPoints;
-	public EditText autoComment;
-	public EditText teleComment;
+	// textfields
+	public EditText teamName, autoPoints, totalPoints, autoComment, teleComment;
 
-	public CheckBoxWidget stackedTotesCBW;
-	public CheckBoxWidget autoZoneCBW;
-	public CheckBoxWidget workedCBW;
-	public CheckBoxWidget functionalCBW;
-	public CheckBoxWidget coopertitionCBW;
+	// checkboxes
+	public CheckBoxWidget stackedTotesCBW, autoZoneCBW, workedCBW, functionalCBW, coopertitionCBW;
 
-	ScrollView scrollView;
-
-	int i=0;
+	private ScrollView scrollView;
 
 	public void onClick(View view) {
-		if (view instanceof CheckBoxWidget) {
+		if (view instanceof CheckBoxWidget) { // toggle a checkbox if it's clicked
 			CheckBoxWidget checkboxwidget = (CheckBoxWidget) view;
-			boolean flag;
-			flag = !checkboxwidget.isChecked();
-			checkboxwidget.setCheckBox(flag);
+			checkboxwidget.setCheckBox(!checkboxwidget.isChecked());
 		}
 	}
 
 	private void initCBWs(View v) {
+		// layout of widgets for autonomous
 		autoList = (LinearLayout) v.findViewById(R.id.auto_match_list);
+
+		// a checkbox for autoZone
 		autoZoneCBW = new CheckBoxWidget(getActivity());
 		autoZoneCBW.setTitleView(getString(R.string.auto_zone_match_label));
 		autoZoneCBW.setOnClickListener(this);
 		autoList.addView(autoZoneCBW);
+
+		// a checkbox for if autonomous could stack totes
 		stackedTotesCBW = new CheckBoxWidget(getActivity());
 		stackedTotesCBW.setTitleView(getString(R.string.totes_auto_label));
 		stackedTotesCBW.setOnClickListener(this);
 		autoList.addView(stackedTotesCBW);
+
+		// a checkbox for whether or not the autonomous worked
 		workedCBW = new CheckBoxWidget(getActivity());
 		workedCBW.setTitleView(getString(R.string.program_auto_worked));
 		workedCBW.setOnClickListener(this);
 		autoList.addView(workedCBW);
+
+		// layout of widgets for teleop
 		teleList = (LinearLayout) v.findViewById(R.id.tele_list);
+
+		// a checkbox for whether or not the teleop was functional
 		functionalCBW = new CheckBoxWidget(getActivity());
 		functionalCBW.setTitleView(getString(R.string.functional_tele_match));
 		functionalCBW.setOnClickListener(this);
 		teleList.addView(functionalCBW);
+
+		// a checkbox for if the robot could do coopertition bins
 		coopertitionCBW = new CheckBoxWidget(getActivity());
 		coopertitionCBW.setTitleView(getString(R.string.coopertition_tele_match));
 		coopertitionCBW.setOnClickListener(this);
@@ -75,26 +81,39 @@ public class TeamFragment extends Fragment implements android.view.View.OnClickL
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View mainView = inflater.inflate(R.layout.team_layout, container, false);
+
 		teleMatchList = (LinearLayout) mainView.findViewById(R.id.tele_match_list);
+
+		// storing the elements in objects
 		autoPoints = (EditText) mainView.findViewById(R.id.auto_points_field);
 		autoComment = (EditText) mainView.findViewById(R.id.auto_comment_field);
 		totalPoints = (EditText) mainView.findViewById(R.id.total_score_field);
 		teleComment = (EditText) mainView.findViewById(R.id.tele_comment_field);
+
 		scrollView = (ScrollView) mainView.findViewById(R.id.scrollView);
 		initCBWs(mainView);
+
 		return mainView;
 	}
 
+	// resets the objects
 	public void clearFields() {
+
+		// checkboxes are defaulting to false
 		autoZoneCBW.setCheckBox(false);
 		stackedTotesCBW.setCheckBox(false);
 		workedCBW.setCheckBox(false);
 		functionalCBW.setCheckBox(false);
 		coopertitionCBW.setCheckBox(false);
+
+		// points default to 0
 		autoPoints.setText("0");
 		totalPoints.setText("0");
+
+		// comments default to empty
 		autoComment.setText("");
 		teleComment.setText("");
+
 		teleMatchList.removeAllViews();
 	}
 
